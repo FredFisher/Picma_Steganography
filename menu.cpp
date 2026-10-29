@@ -9,6 +9,7 @@
 #include <iostream>
 #include <ostream>
 
+
 menu::menu() {
 
 }
@@ -28,10 +29,12 @@ void menu::chooseOption () {
         std::cin >> userInput;
 
         switch (userInput) {
-            case 1:
-                //add file to pic
+            case 1:{
+                text_input input;
+                input.showOptions();
+                input.chooseOption();
                 break;
-
+            }
             case 2:
                 //add pic to file
                 break;
