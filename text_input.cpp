@@ -35,12 +35,15 @@ void text_input::chooseOption () {
             case 1:
                 std::cout << "Please enter the filename you would like to encrypt"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\test.txt"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\input.txt"<<std::endl;
                 std::cin >> inputFilename;
-                std::cout << "Please enter the output filename you would like to encrypt"<<std::endl;
+                std::cout << "Please enter the output filename for the encrypted picture"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
                 std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\output.png"<<std::endl;
                 std::cin >> outputFilename;
+                std::cout << "Please enter the width for the encrypted picture"<<std::endl;
+                std::cout << "(A width of 200 would be 200 pixels wide)"<<std::endl;
+                std::cin >> width;
 
                 //add input for width
 
