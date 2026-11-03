@@ -4,7 +4,9 @@
 
 #ifndef PICMA_TEXT_INPUT_H
 #define PICMA_TEXT_INPUT_H
+
 #include <string>
+#include <vector>
 
 
 class text_input {
@@ -14,6 +16,7 @@ class text_input {
         void chooseOption ();
         bool convertFileToString(const std::string& inputFilename, const std::string& outputFilename, int width);
         bool convertStringToPicture(const std::string& text, const std::string& outputFilename, int width);
+        std::vector<std::vector<size_t>>sortPixelsPerRow(const std::string& outputFilename);
 };
 
 
