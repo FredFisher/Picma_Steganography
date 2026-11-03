@@ -3,6 +3,7 @@
 //
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 
 #include "text_input.h"
 
@@ -10,8 +11,12 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <algorithm>
+#include <numeric>
 
 #include "stb_image_write.h" //credit goes to the authors @ https://github.com/nothings/stb/blob/master/stb_image_write.h
+#include "stb_image.h" //credit goes to the authors @ https://github.com/nothings/stb/blob/master/stb_image.h
+
 
 text_input::text_input() {}
 
@@ -45,14 +50,26 @@ void text_input::chooseOption () {
                 std::cout << "(A width of 200 would be 200 pixels wide)"<<std::endl;
                 std::cin >> width;
 
-                //add input for width
-
                 convertFileToString(inputFilename, outputFilename, width);
 
                 break;
 
             case 2:
-                //add symmetric
+                std::cout << "Please enter the filename you would like to encrypt"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\input.txt"<<std::endl;
+                std::cin >> inputFilename;
+                std::cout << "Please enter the output filename for the encrypted picture"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\output.png"<<std::endl;
+                std::cin >> outputFilename;
+                std::cout << "Please enter the width for the encrypted picture"<<std::endl;
+                std::cout << "(A width of 200 would be 200 pixels wide)"<<std::endl;
+                std::cin >> width;
+
+                convertFileToString(inputFilename, outputFilename, width);
+                sortPixelsPerRow(outputFilename);
+
                 break;
 
             default:
@@ -97,4 +114,40 @@ bool text_input::convertStringToPicture(const std::string& text, const std::stri
 
     int success = stbi_write_png(outputFilename.c_str(), width, height, 1, pixels.data(), width);
     return success != 0;
+}
+
+std::vector<std::vector<size_t>> text_input::sortPixelsPerRow(const std::string& outputFilename) {
+    int width = 0, height = 0, channels = 0;
+
+    unsigned char* img = stbi_load(outputFilename.c_str(), &width, &height, &channels, 1);
+    if (img == NULL) {
+        std::cerr << "Failed to load image: " << outputFilename << std::endl;
+        return {};
+    }
+    std::vector<std::vector<size_t>> originalIndices(height, std::vector<size_t>(width));
+    std::vector<unsigned char> sortedPixels(width * height);
+
+    for (size_t i = 0; i < height; i++) {
+        std::vector<size_t> rowIndices(width);
+        std::iota(rowIndices.begin(), rowIndices.end(), 0);
+
+        unsigned char* currentRow = img + i * width;
+
+        std::sort(rowIndices.begin(), rowIndices.end(), [currentRow](size_t a, size_t b) {
+            return currentRow[a] < currentRow[b];
+        });
+
+        originalIndices[i] = rowIndices;
+
+        for (size_t j = 0; j < width; j++) {
+            sortedPixels[i * width + j] = currentRow[rowIndices[j]];
+        }
+    }
+
+    //std::string sortedFilename = "sorted" + outputFilename;
+    stbi_write_png(outputFilename.c_str(), width, height, 1, sortedPixels.data(), width);
+
+    stbi_image_free(img);
+
+    return originalIndices;
 }
