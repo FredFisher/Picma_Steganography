@@ -25,7 +25,8 @@ void text_input::showOptions() {
     std::cout<<"-----*Text to Picture*-----"<<std::endl;
     std::cout<<"Choose an option by entering 1 or 2 and hit enter."<<std::endl;
     std::cout<<"1. classic encrypt a textfile"<<std::endl;
-    std::cout<<"2. symmetric encrypt a textfile"<<std::endl;
+    std::cout<<"2. sort encrypt a textfile"<<std::endl;
+    std::cout<<"3. symmetric encrypt a textfile"<<std::endl;
 }
 
 void text_input::chooseOption () {
@@ -36,7 +37,7 @@ void text_input::chooseOption () {
 
     int width = 200;
 
-    while (userInput < 1 || userInput > 2) {
+    while (userInput < 1 || userInput > 3) {
         std::cin >> userInput;
 
         switch (userInput) {
@@ -72,9 +73,38 @@ void text_input::chooseOption () {
 
                 convertFileToString(inputFilename, outputFilename, width);
                 originalIndices = sortPixelsPerRow(outputFilename);
-                //generateKeyPicture(originalIndices, outputFilename);
-                convertStringToPicture(generateKeyString(originalIndices), "key",width);
 
+                std::cout << "Please enter the filename for the key"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\key.png"<<std::endl;
+                std::cin >> outputFilename;
+                convertStringToPicture(generateKeyString(originalIndices), outputFilename,width);
+
+                break;
+
+            case 3:
+                /*
+                std::cout << "Please enter the filename you would like to encrypt"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\input.txt"<<std::endl;
+                std::cin >> inputFilename;
+                std::cout << "Please enter the output filename for the encrypted picture"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\output.png"<<std::endl;
+                std::cin >> outputFilename;
+                std::cout << "Please enter the width for the encrypted picture"<<std::endl;
+                std::cout << "(A width of 200 would be 200 pixels wide)"<<std::endl;
+                std::cin >> width;
+
+                convertFileToString(inputFilename, outputFilename, width);
+                originalIndices = sortPixelsPerRow(outputFilename);
+
+                std::cout << "Please enter the filename for the key"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\key.png"<<std::endl;
+                std::cin >> outputFilename;
+                convertStringToPicture(generateKeyString(originalIndices), outputFilename,width);
+                */
                 break;
 
             default:
@@ -158,10 +188,6 @@ std::vector<std::vector<size_t>> text_input::sortPixelsPerRow(std::string& outpu
     return originalIndices;
 }
 
-
-
-// toDo: funktion für das key bild mit den echten indices
-
 std::string text_input::generateKeyString(std::vector<std::vector<size_t>> originalIndices) {
     size_t height = originalIndices.size(), width = height > 0 ? originalIndices[0].size() : 0;
 
@@ -176,24 +202,3 @@ std::string text_input::generateKeyString(std::vector<std::vector<size_t>> origi
     return std::string(oss.str());
 }
 
-/*
-bool text_input::generateKeyPicture(std::vector<std::vector<size_t>> originalIndices, std::string& outputFilename) {
-    std::vector<unsigned char> pixels;
-    pixels.reserve(originalIndices.size() * originalIndices[0].size());
-
-    for (const auto& row : originalIndices) {
-
-        for (size_t val : row) {
-            pixels.push_back(static_cast<unsigned char>(std::min(val, (size_t)255)));
-        }
-    }
-    int imgWidth = originalIndices[0].size(), imgHeight = originalIndices.size();
-
-    //std::string keyFilename = "key_" + outputFilename;
-    //int success = stbi_write_png(keyFilename.c_str(), imgWidth, imgHeight, 1, pixels.data(), imgWidth);
-    int success = stbi_write_png("key.png", imgWidth, imgHeight, 1, pixels.data(), imgWidth);
-
-
-
-    return success != 0;
-}*/
