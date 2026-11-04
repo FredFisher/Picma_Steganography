@@ -13,6 +13,7 @@
 #include <fstream>
 #include <algorithm>
 #include <numeric>
+#include <sstream>
 
 #include "stb_image_write.h" //credit goes to the authors @ https://github.com/nothings/stb/blob/master/stb_image_write.h
 #include "stb_image.h" //credit goes to the authors @ https://github.com/nothings/stb/blob/master/stb_image.h
@@ -31,6 +32,8 @@ void text_input::chooseOption () {
     int userInput = 0;
     std::string inputFilename;
     std::string outputFilename;
+    std::vector<std::vector<size_t>> originalIndices;
+
     int width = 200;
 
     while (userInput < 1 || userInput > 2) {
@@ -68,7 +71,9 @@ void text_input::chooseOption () {
                 std::cin >> width;
 
                 convertFileToString(inputFilename, outputFilename, width);
-                sortPixelsPerRow(outputFilename);
+                originalIndices = sortPixelsPerRow(outputFilename);
+                //generateKeyPicture(originalIndices, outputFilename);
+                convertStringToPicture(generateKeyString(originalIndices), "key",width);
 
                 break;
 
@@ -116,7 +121,7 @@ bool text_input::convertStringToPicture(const std::string& text, const std::stri
     return success != 0;
 }
 
-std::vector<std::vector<size_t>> text_input::sortPixelsPerRow(const std::string& outputFilename) {
+std::vector<std::vector<size_t>> text_input::sortPixelsPerRow(std::string& outputFilename) {
     int width = 0, height = 0, channels = 0;
 
     unsigned char* img = stbi_load(outputFilename.c_str(), &width, &height, &channels, 1);
@@ -145,9 +150,50 @@ std::vector<std::vector<size_t>> text_input::sortPixelsPerRow(const std::string&
     }
 
     //std::string sortedFilename = "sorted" + outputFilename;
+    //stbi_write_png(sortedFilename.c_str(), width, height, 1, sortedPixels.data(), width);
     stbi_write_png(outputFilename.c_str(), width, height, 1, sortedPixels.data(), width);
 
     stbi_image_free(img);
 
     return originalIndices;
 }
+
+
+
+// toDo: funktion für das key bild mit den echten indices
+
+std::string text_input::generateKeyString(std::vector<std::vector<size_t>> originalIndices) {
+    size_t height = originalIndices.size(), width = height > 0 ? originalIndices[0].size() : 0;
+
+    std::ostringstream oss(std::ios_base::binary);
+
+    oss.write(reinterpret_cast<char*>(&height), sizeof(height));
+    oss.write(reinterpret_cast<char*>(&width), sizeof(width));
+
+    for (const auto& row : originalIndices) {
+        oss.write(reinterpret_cast<const char*>(row.data()), row.size() * sizeof(size_t));
+    }
+    return std::string(oss.str());
+}
+
+/*
+bool text_input::generateKeyPicture(std::vector<std::vector<size_t>> originalIndices, std::string& outputFilename) {
+    std::vector<unsigned char> pixels;
+    pixels.reserve(originalIndices.size() * originalIndices[0].size());
+
+    for (const auto& row : originalIndices) {
+
+        for (size_t val : row) {
+            pixels.push_back(static_cast<unsigned char>(std::min(val, (size_t)255)));
+        }
+    }
+    int imgWidth = originalIndices[0].size(), imgHeight = originalIndices.size();
+
+    //std::string keyFilename = "key_" + outputFilename;
+    //int success = stbi_write_png(keyFilename.c_str(), imgWidth, imgHeight, 1, pixels.data(), imgWidth);
+    int success = stbi_write_png("key.png", imgWidth, imgHeight, 1, pixels.data(), imgWidth);
+
+
+
+    return success != 0;
+}*/
