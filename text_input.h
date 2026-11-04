@@ -16,7 +16,9 @@ class text_input {
         void chooseOption ();
         bool convertFileToString(const std::string& inputFilename, const std::string& outputFilename, int width);
         bool convertStringToPicture(const std::string& text, const std::string& outputFilename, int width);
-        std::vector<std::vector<size_t>>sortPixelsPerRow(const std::string& outputFilename);
+        std::vector<std::vector<size_t>>sortPixelsPerRow(std::string& outputFilename);
+        //bool generateKeyPicture(std::vector<std::vector<size_t>> originalIndices, std::string& outputFilename);
+        std::string generateKeyString(std::vector<std::vector<size_t>> originalIndices);
 };
 
 
