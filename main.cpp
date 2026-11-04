@@ -4,8 +4,23 @@
 
 //   -------------------------------------------TESTDATEN-----------------------------------------------------
 
-//   C:\\Users\\JJ\\Desktop\\itp_testordner\\testText.txt   C:\\Users\\JJ\\Desktop\\itp_testordner\\output.png
+//---------------TEXT INPUT-----------------
+
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\testText.txt
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\output.png
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\key.png
+//
 //   width = 63
+
+
+//---------------PICTURE INPUT-----------------
+
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\input.png
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\output.txt
+//
 
 
 int main() {
