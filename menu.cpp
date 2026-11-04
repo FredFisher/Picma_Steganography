@@ -30,15 +30,17 @@ void menu::chooseOption () {
 
         switch (userInput) {
             case 1:{
-                text_input input;
-                input.showOptions();
-                input.chooseOption();
+                text_input text;
+                text.showOptions();
+                text.chooseOption();
                 break;
             }
-            case 2:
-                //add pic to file
+            case 2: {
+                picture_input picture;
+                picture.showOptions();
+                picture.chooseOption();
                 break;
-
+            }
             default:
                 std::cout<<"Wrong Input. Try Again"<<std::endl << std::endl;
                 std::cin.clear();
