@@ -21,7 +21,7 @@
 //
 //   C:\\Users\\JJ\\Desktop\\itp_testordner\\output.txt
 //
-
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\key.png
 
 int main() {
     menu m;
