@@ -1,51 +1,31 @@
-//
-// Created by JJ on 27/10/2026.
-//
-
-#include "menu.h"
-#include "text_input.h"
-#include "picture_input.h"
-
 #include <iostream>
-#include <ostream>
+#include "menu.h"
 
 
-menu::menu() {
+//   -------------------------------------------TESTDATEN-----------------------------------------------------
 
-}
+//---------------TEXT INPUT-----------------
 
-void menu::showOptions() {
-    std::cout<<"-----*PICMA*-----"<<std::endl;
-    std::cout<<"Welcome to the Picma menu!"<<std::endl;
-    std::cout<<"Choose an option by entering 1 or 2 and hit enter."<<std::endl;
-    std::cout<<"1. encrypt a textfile([...].txt) to a picture([...].png)"<<std::endl;
-    std::cout<<"2. decrypt a picture([...].png) to a textfile([...].txt)"<<std::endl;
-}
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\testText.txt
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\output.png
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\key.png
+//
+//   width = 63
 
-void menu::chooseOption () {
-    int userInput = 0;
 
-    while (userInput < 1 || userInput > 2) {
-        std::cin >> userInput;
+//---------------PICTURE INPUT-----------------
 
-        switch (userInput) {
-            case 1:{
-                text_input text;
-                text.showOptions();
-                text.chooseOption();
-                break;
-            }
-            case 2: {
-                picture_input picture;
-                picture.showOptions();
-                picture.chooseOption();
-                break;
-            }
-            default:
-                std::cout<<"Wrong Input. Try Again"<<std::endl << std::endl;
-                std::cin.clear();
-                std::cin.ignore(10000, '\n');
-                userInput = 0;
-        }
-    }
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\input.png
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\output.txt
+//
+//   C:\\Users\\JJ\\Desktop\\itp_testordner\\key.png
+
+int main() {
+    menu m;
+    m.showOptions();
+    m.chooseOption();
+    return 0;
 }
