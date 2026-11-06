@@ -22,7 +22,8 @@ void picture_input::showOptions() {
     std::cout<<"-----*Picture to Text*-----"<<std::endl;
     std::cout<<"Choose an option by entering 1 or 2 and hit enter."<<std::endl;
     std::cout<<"1. classic decrypt a picture"<<std::endl;
-    std::cout<<"2. symmetric decrypt a picture"<<std::endl;
+    std::cout<<"2. sort decrypt a picture"<<std::endl;
+    std::cout<<"3. symmetric decrypt a picture"<<std::endl;
 }
 
 void picture_input::chooseOption () {
@@ -30,6 +31,8 @@ void picture_input::chooseOption () {
     std::string inputFilename;
     std::string outputFilename;
     std::string keyFilename;
+    //hardcoded testvariable
+    std::string outputOriginalText = "C:\\Users\\JJ\\Desktop\\itp_testordner\\outputOriginalText.txt";
 
     while (userInput < 1 || userInput > 2) {
         std::cin >> userInput;
@@ -60,12 +63,12 @@ void picture_input::chooseOption () {
                 std::cin >> outputFilename;
                 std::cout << "Please enter the key filename for decrypted message"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\keyInput.txt"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\key.png"<<std::endl;
                 std::cin >> keyFilename;
 
-                convertKeyStringToIndices(convertPictureToString(keyFilename));
+                revertSortPixels(inputFilename, outputFilename,convertKeyStringToIndices(convertKeyPictureToString(keyFilename)));
 
-                //convertPictureToFile(inputFilename, outputFilename);
+                convertPictureToFile(outputFilename, outputOriginalText);
                 break;
 
             case 3:
@@ -80,36 +83,6 @@ void picture_input::chooseOption () {
         }
     }
 }
-/*
-std::string picture_input::convertPictureToString(const std::string& inputFilename, const std::string& outputFilename) {
-    int imgWidth, imgHeight, imgChannels;
-    unsigned char* imgData = stbi_load(inputFilename.c_str(), &imgWidth, &imgHeight, &imgChannels, 1);
-
-    if (imgData == NULL) {
-        return "Error loading file";
-    }
-    std::string content(reinterpret_cast<char*>(imgData), imgWidth * imgHeight);
-
-    stbi_image_free(imgData);
-
-    return content;
-}
-
-bool picture_input::convertStringToFile(const std::string& text, const std::string& outputFilename) {
-    if (text.empty()) {
-        return false;
-    }
-    std::ofstream file(outputFilename, std::ios::binary);
-    if (file.is_open()) {
-        return false;
-    }
-    file.write(text.data(), text.size());
-    file.close();
-
-    return true;
-}
-
-*/
 
 bool picture_input::convertPictureToFile(const std::string& inputFilename, const std::string& outputFilename) {
     int width, height, channels;
@@ -137,62 +110,74 @@ bool picture_input::convertPictureToFile(const std::string& inputFilename, const
     return true;
 }
 
-
-std::string picture_input::convertPictureToString(const std::string& keyFilename) {
+std::string picture_input::convertKeyPictureToString(const std::string &keyFilename) {
     int imgWidth, imgHeight, imgChannels;
-    std::string outputString;
     unsigned char* imgData = stbi_load(keyFilename.c_str(), &imgWidth, &imgHeight, &imgChannels, 1);
 
-    if (imgData == NULL) {
-        return "Error loading file";
+    if (!imgData) {
+        throw std::runtime_error("Error loading key file");
     }
-    outputString.clear();
-
-    for (int i = 0; i < imgHeight; i++) {
-        for (int j = 0; j < imgWidth; j++) {
-            unsigned char pixels = imgData[i * imgWidth + j];
-            outputString += static_cast<char>(pixels);
-        }
-        outputString += "\n";
-    }
+    std::string keyString(reinterpret_cast<char*>(imgData), static_cast<size_t>(imgWidth) * imgHeight);
 
     stbi_image_free(imgData);
 
-    return outputString;
+    return keyString;
 }
 
-
 std::vector<std::vector<size_t>> picture_input::convertKeyStringToIndices(const std::string& keyString) {
-    if (keyString.size() < sizeof(size_t) * 2) {
-        throw std::runtime_error("Key string is too short to be a valid key string");
+    const size_t headerSize = 2 * sizeof(size_t);
+    if (keyString.size() < headerSize) {
+        throw std::runtime_error("Key string too short");
     }
     const char* ptr = keyString.data();
-
     size_t height = 0;
     size_t width = 0;
-
     std::memcpy(&height, ptr, sizeof(height));
     ptr += sizeof(height);
-
     std::memcpy(&width, ptr, sizeof(width));
     ptr += sizeof(width);
 
-    size_t expected_size = sizeof(size_t) * 2 + height * width * sizeof(size_t);
-    if (keyString.size() != expected_size) {
-        throw std::runtime_error("Key string is not a valid key string");
+    if (height == 0 || width == 0 || height > (keyString.size() - headerSize) / sizeof(size_t) / width) {
+        throw std::runtime_error("Key string invalid");
     }
 
     std::vector<std::vector<size_t>> originalIndices(height, std::vector<size_t>(width));
-
     for (size_t i = 0; i < height; i++) {
-        std::memcpy(originalIndices[i].data(), ptr, sizeof(size_t));
+        std::memcpy(originalIndices[i].data(), ptr, width * sizeof(size_t));
         ptr += width * sizeof(size_t);
     }
     return originalIndices;
 }
 
-// toDo: funktion get real indices from key
+bool picture_input::revertSortPixels(const std::string& inputFilename, const std::string& outputFilename, const std::vector<std::vector<size_t>>& originalIndices) {
+    if (originalIndices.empty()) {
+        return false;
+    }
+    int imgWidth = 0, imgHeight = 0, imgChannels = 0;
+    unsigned char* imgData = stbi_load(inputFilename.c_str(), &imgWidth, &imgHeight, &imgChannels, 1);
 
-// toDo: funktion reassamble original picture via original indices
+    if (imgData == NULL) {
+        std::cerr<<"Error loading file"<<std::endl;
+        return false;
+    }
 
-bool picture_input::revertSortPixels(const std::string& inputFilename, const std::string& outputFilename) {}
+    if (imgHeight != originalIndices.size() || imgWidth != originalIndices[0].size()) {
+        std::cerr<<"Error reverting file"<<std::endl;
+        stbi_image_free(imgData);
+        return false;
+    }
+
+    std::vector<unsigned char> restoredPixels(imgWidth * imgHeight);
+
+    for (int i = 0; i < imgHeight; i++) {
+        unsigned char* currentRow = imgData + i * imgWidth;
+        const auto& indices = originalIndices[i];
+
+        for (size_t j = 0; j < imgWidth; j++) {
+            restoredPixels[i * imgWidth + indices[j]] = currentRow[j];
+        }
+    }
+    int success = stbi_write_png(outputFilename.c_str(), imgWidth, imgHeight, 1, restoredPixels.data(), imgWidth);
+    stbi_image_free(imgData);
+    return success != 0;
+}
