@@ -22,8 +22,8 @@ void picture_input::showOptions() {
     std::cout<<"-----*Picture to Text*-----"<<std::endl;
     std::cout<<"Choose an option by entering 1 , 2 or 3 and hit enter."<<std::endl;
     std::cout<<"1. classic decrypt a picture"<<std::endl;
-    std::cout<<"2. sort decrypt a picture"<<std::endl;
-    std::cout<<"3. symmetric decrypt a picture"<<std::endl;
+    std::cout<<"2. decrypt a sorted picture"<<std::endl;
+    std::cout<<"3. decrypt a symmetric picture"<<std::endl;
 }
 
 void picture_input::chooseOption () {
@@ -33,18 +33,18 @@ void picture_input::chooseOption () {
     std::string keyFilename;
 
 
-    while (userInput < 1 || userInput > 2) {
+    while (userInput < 1 || userInput > 3) {
         std::cin >> userInput;
 
         switch (userInput) {
             case 1:
                 std::cout << "Please enter the filename you would like to decrypt"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\input.png"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\input.png"<<std::endl;
                 std::cin >> inputFilename;
                 std::cout << "Please enter the output filename for decrypted message"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\output.txt"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\output.txt"<<std::endl;
                 std::cin >> outputFilename;
 
                 convertPictureToFile(inputFilename, outputFilename);
@@ -54,15 +54,15 @@ void picture_input::chooseOption () {
             case 2:
                 std::cout << "Please enter the filename you would like to decrypt"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\sortedInput.png"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\sortedPictureInput.png"<<std::endl;
                 std::cin >> inputFilename;
                 std::cout << "Please enter the output filename for decrypted message"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\output.txt"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\output.txt"<<std::endl;
                 std::cin >> outputFilename;
                 std::cout << "Please enter the key filename for decrypted message"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
-                std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\key.png"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\key.png"<<std::endl;
                 std::cin >> keyFilename;
 
                 revertSortPixels(inputFilename, outputFilename,convertKeyStringToIndices(convertKeyPictureToString(keyFilename)));
@@ -71,7 +71,24 @@ void picture_input::chooseOption () {
                 break;
 
             case 3:
+                std::cout << "Please enter the filename you would like to decrypt"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\symmetricPictureInput.png"<<std::endl;
+                std::cin >> inputFilename;
+                std::cout << "Please enter the output filename for decrypted message"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\output.txt"<<std::endl;
+                std::cin >> outputFilename;
+                std::cout << "Please enter the key filename for decrypted message"<<std::endl;
+                std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
+                std::cout << "e.g.: C:\\\\Users\\\\HarryChoice\\\\Desktop\\\\key.png"<<std::endl;
+                std::cin >> keyFilename;
 
+                revertSymmetricPicture(inputFilename, outputFilename);
+
+                revertSortPixels(outputFilename, outputFilename,convertKeyStringToIndices(convertKeyPictureToString(keyFilename)));
+
+                convertPictureToFile(outputFilename, outputFilename);
 
                 break;
 
@@ -179,5 +196,31 @@ bool picture_input::revertSortPixels(const std::string& inputFilename, const std
     }
     int success = stbi_write_png(outputFilename.c_str(), imgWidth, imgHeight, 1, restoredPixels.data(), imgWidth);
     stbi_image_free(imgData);
+    return success != 0;
+}
+
+bool picture_input::revertSymmetricPicture(const std::string& inputFilename, const std::string& outputFilename) {
+    int symWidth, symHeight, symChannels;
+    unsigned char* imgData = stbi_load(inputFilename.c_str(), &symWidth, &symHeight, &symChannels, 1);
+
+    if (imgData == NULL) {
+        std::cerr<<"Error loading file"<<std::endl;
+        return false;
+    }
+
+    int originalWidth = symWidth / 2, originalHeight = symHeight;
+    std::vector<unsigned char> originalPixels(originalWidth * originalHeight);
+
+    for (int i = 0; i < originalHeight; i++) {
+        for (int j = 0; j < originalWidth; j++) {
+            int symIndex = i * symWidth + j;
+            int originalIndex = i * originalWidth + j;
+            originalPixels[originalIndex] = imgData[symIndex];
+        }
+    }
+
+    int success = stbi_write_png(outputFilename.c_str(), originalWidth, originalHeight, 1, originalPixels.data(), originalWidth);
+    stbi_image_free(imgData);
+
     return success != 0;
 }
