@@ -20,7 +20,7 @@ picture_input::picture_input() {}
 
 void picture_input::showOptions() {
     std::cout<<"-----*Picture to Text*-----"<<std::endl;
-    std::cout<<"Choose an option by entering 1 or 2 and hit enter."<<std::endl;
+    std::cout<<"Choose an option by entering 1 , 2 or 3 and hit enter."<<std::endl;
     std::cout<<"1. classic decrypt a picture"<<std::endl;
     std::cout<<"2. sort decrypt a picture"<<std::endl;
     std::cout<<"3. symmetric decrypt a picture"<<std::endl;
@@ -31,8 +31,6 @@ void picture_input::chooseOption () {
     std::string inputFilename;
     std::string outputFilename;
     std::string keyFilename;
-    //hardcoded testvariable
-    std::string outputOriginalText;
 
 
     while (userInput < 1 || userInput > 2) {
@@ -69,10 +67,7 @@ void picture_input::chooseOption () {
 
                 revertSortPixels(inputFilename, outputFilename,convertKeyStringToIndices(convertKeyPictureToString(keyFilename)));
 
-                outputOriginalText = outputFilename;
-                outputOriginalText.replace(outputOriginalText.length() - 4, 4, "OriginalText.txt");
-
-                convertPictureToFile(outputFilename, outputOriginalText);
+                convertPictureToFile(outputFilename, outputFilename);
                 break;
 
             case 3:
