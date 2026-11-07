@@ -34,6 +34,7 @@ void text_input::chooseOption () {
     std::string inputFilename;
     std::string outputFilename;
     std::vector<std::vector<size_t>> originalIndices;
+    std::string symmetricFilename;
 
     int width = 200;
 
@@ -83,7 +84,7 @@ void text_input::chooseOption () {
                 break;
 
             case 3:
-                /*
+
                 std::cout << "Please enter the filename you would like to encrypt"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
                 std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\input.txt"<<std::endl;
@@ -99,12 +100,20 @@ void text_input::chooseOption () {
                 convertFileToString(inputFilename, outputFilename, width);
                 originalIndices = sortPixelsPerRow(outputFilename);
 
+                symmetricFilename = outputFilename;
+
                 std::cout << "Please enter the filename for the key"<<std::endl;
                 std::cout << "Has to be an absolute path! Use double dashes for single dashes"<<std::endl;
                 std::cout << "e.g.: C:\\\\Users\\\\JJ\\\\Desktop\\\\key.png"<<std::endl;
                 std::cin >> outputFilename;
                 convertStringToPicture(generateKeyString(originalIndices), outputFilename,width);
-                */
+
+                outputFilename = symmetricFilename;
+
+                symmetricFilename.replace(symmetricFilename.length() - 4, 4, "Symmetric.png");
+
+                generateSymmetricPicture(outputFilename, symmetricFilename);
+
                 break;
 
             default:
@@ -202,3 +211,32 @@ std::string text_input::generateKeyString(std::vector<std::vector<size_t>> origi
     return std::string(oss.str());
 }
 
+bool text_input::generateSymmetricPicture(const std::string& inputFilename, const std::string& outputFilename) {
+    int imgWidth, imgHeight, imgChannels;
+    unsigned char* imgData = stbi_load(inputFilename.c_str(), &imgWidth, &imgHeight, &imgChannels, 1);
+
+    if (imgData == NULL) {
+        std::cerr<<"Error loading file"<<std::endl;
+        return false;
+    }
+
+    int newWidth = imgWidth * 2, newHeight = imgHeight;
+    std::vector<unsigned char> newImgData(newWidth * newHeight);
+
+    for (int i = 0; i < imgHeight; i++) {
+        for (int j = 0; j < imgWidth; j++) {
+            int inputIndex = i * imgWidth + j;
+
+            int leftIndex = i * newWidth + j;
+            newImgData[leftIndex] = imgData[inputIndex];
+
+            int mirrored = imgWidth - 1 - j;
+            int rightIndex = i * newWidth + (imgWidth + mirrored);
+            newImgData[rightIndex] = imgData[inputIndex];
+        }
+    }
+    int success = stbi_write_png(outputFilename.c_str(), newWidth, newHeight, 1, newImgData.data(), newWidth);
+    stbi_image_free(imgData);
+
+    return success != 0;
+}
