@@ -14,7 +14,7 @@
 
 #include "stb_image.h"
 #include "stb_image_write.h" //credit goes to the authors @ https://github.com/nothings/stb/blob/master/stb_image_write.h
-#include "text_input.h"
+
 
 picture_input::picture_input() {}
 
@@ -32,7 +32,8 @@ void picture_input::chooseOption () {
     std::string outputFilename;
     std::string keyFilename;
     //hardcoded testvariable
-    std::string outputOriginalText = "C:\\Users\\JJ\\Desktop\\itp_testordner\\outputOriginalText.txt";
+    std::string outputOriginalText;
+
 
     while (userInput < 1 || userInput > 2) {
         std::cin >> userInput;
@@ -68,11 +69,15 @@ void picture_input::chooseOption () {
 
                 revertSortPixels(inputFilename, outputFilename,convertKeyStringToIndices(convertKeyPictureToString(keyFilename)));
 
+                outputOriginalText = outputFilename;
+                outputOriginalText.replace(outputOriginalText.length() - 4, 4, "OriginalText.txt");
+
                 convertPictureToFile(outputFilename, outputOriginalText);
                 break;
 
             case 3:
-                //add symmetric
+
+
                 break;
 
             default:
